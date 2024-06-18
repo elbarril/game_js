@@ -28,3 +28,20 @@ li {
     background-color: darkblue;
     position: relative;
 }
+
+li::after{
+    position: absolute;
+    left: 10px;
+    bottom: 5px;
+}
+
+li.solid {
+    background: white;
+}
+
+li.player::after {
+    content: 'P';
+    border-radius: 50%;
+    padding: 5px 10px;
+    background-color: darkgoldenrod;
+}

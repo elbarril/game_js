@@ -1,16 +1,73 @@
+
+var position;
+
 function loadMap(map){
     let gameElement = document.body.querySelector('#game');
     for (let row = 0; row < map.length; row++) {
         const itemsMap = map[row];
         let rowElement = document.createElement('ul');
         for (let column = 0; column < itemsMap.length; column++) {
+            position = new Position(row, column)
             const item = itemsMap[column];
             let itemElement = createItem(item, row, column);
             itemElement && rowElement.appendChild(itemElement);
         }
         gameElement.appendChild(rowElement);
     }
+    return position;
 }
+
+class Position{
+
+    x;
+    y;
+
+    constructor(x,y){
+        this.x = x;
+        this.y = y;
+    }
+
+}
+
+class Character{
+
+    position;
+    direction;
+
+    constructor(position, direction){
+        this.position=position;
+        this.direction=direction;
+    }
+
+}
+
+class PlayerCharacter extends Character{
+
+    name;
+
+    constructor(name, position, direction){
+        super(position, direction)
+        this.name=name;
+    }
+
+    
+    setDirection(direction){
+        this.direction = direction
+        return this
+    }
+
+    move(){
+
+        this.position.x += this.direction.x;
+        this.position.y += this.direction.y;
+        
+    }
+}
+
+const UP = "ArrowUp"
+const DOWN = "ArrowDown"
+const LEFT = "ArrowLeft"
+const RIGHT = "ArrowRight"
 
 const ITEMS_MAP = {
     "0": false,
@@ -19,10 +76,10 @@ const ITEMS_MAP = {
 }
 
 const MOVEMENTS = {
-    "ArrowUp": [-1, 0],
-    "ArrowDown": [1, 0],
-    "ArrowLeft": [0, -1],
-    "ArrowRight": [0, 1]
+    [UP]: new Position(0, -1),
+    [DOWN]: new Position(0, 1),
+    [LEFT]: new Position(-1, 0),
+    [RIGHT]: new Position(1, 0)
 }
 
 function createItem(itemCode, row, column){
@@ -42,7 +99,9 @@ function createControls() {
     document.addEventListener('keydown', event => {
         try {
             const direction = MOVEMENTS[event.key];
-            move(direction);
+            let player = new PlayerCharacter('Brisa', position, direction);
+            player.setDirection(direction).move();
+            console.log(player.position);
         } catch (error) {
             console.log(error);
         }
@@ -65,10 +124,18 @@ function move(direction) {
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded.");
-    fetch("data.json").then(response => {
-        return response.json();
-    }).then(map => {
-        loadMap(map);
-        createControls();
-    });
+    var map=[
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,2,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1]
+    ]
+    loadMap(map);
+    createControls();
 });

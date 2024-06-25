@@ -7,7 +7,7 @@ class Player{
         this.name=name;
     }
 
-    moveCharacter(map, direction){
+    moveCharacter(map, direction, npc){
 
         this.character.direction = direction;
         let nextX = this.character.position.x + direction.x;
@@ -15,6 +15,7 @@ class Player{
         if (map.positions.length < nextY || nextY < 0 ) return;
         if (map.positions[nextY].length < nextX || nextX < 0 ) return;
         if (map.positions[nextX][nextY]) return;
+        if (nextX === npc.position.x && nextY === npc.position.y) return;
 
         map.remove(this.character);
         this.character.move();

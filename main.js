@@ -2,12 +2,13 @@ import Game from './model/game.js'
 import GameView from './view/gameview.js'
 
 var playerName = 'Player';
+var npcName = 'NPC'
 
 document.addEventListener("DOMContentLoaded", () => {
     //while (!playerName){
     //    playerName = prompt('Ingresa tu nombre');
     //}
-    let game = new Game(playerName);
+    let game = new Game(playerName, npcName);
     let view = new GameView();
 
     fetch('data.json').then(response => {

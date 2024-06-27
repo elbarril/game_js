@@ -1,12 +1,28 @@
-[
-    [1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,3,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,3,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,3,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,2,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1]
-]
+{
+    "map": {
+        "width": 10,
+        "height": 10,
+        "statics": [
+            {"id": "obstacle", "position": {"x": 0, "y": 0}},
+            {"id": "obstacle", "position": {"x": 1, "y": 1}},
+            {"id": "obstacle", "position": {"x": 2, "y": 2}},
+            {"id": "obstacle", "position": {"x": 3, "y": 3}},
+            {"id": "obstacle", "position": {"x": 6, "y": 6}},
+            {"id": "obstacle", "position": {"x": 7, "y": 7}},
+            {"id": "obstacle", "position": {"x": 8, "y": 8}},
+            {"id": "obstacle", "position": {"x": 9, "y": 9}}
+        ]
+    },
+    "player": {
+        "name": "Player",
+        "position": {
+            "x": 4,
+            "y": 8
+        }
+    },
+    "bots": [
+        {"name": "Bot 1", "position": {"x": 4, "y": 2}},
+        {"name": "Bot 2", "position": {"x": 7, "y": 4}},
+        {"name": "Bot 3", "position": {"x": 2, "y": 6}}
+    ]
+}

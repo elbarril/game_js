@@ -1,7 +1,9 @@
 export default class Player{
     character;
+    name;
 
-    constructor(character=null){
+    constructor(name=null, character=null){
+        this.name = name;
         this.character = character;
     }
 

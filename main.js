@@ -8,10 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded.");
     fetch("data.json").then(response => {
         return response.json();
-    }).then(map => {
-        game.loadMap(map);
+    }).then(data => {
+        game.setMap(data["map"]);
+        game.setPlayer(data["player"]);
+        game.setBots(data["bots"]);
+
         game.setPlayerControls();
-        game.setBots();
+        game.setBotsActions();
         game.addObserver(view);
         view.render(game);
 

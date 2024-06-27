@@ -6,61 +6,68 @@ import Character from "./character.js";
 import Obstacle from "./obstacle.js";
 import MOVEMENTS from "./movements.js";
 
-const OBSTACLE_NUMBER = 1;
-const PLAYER_NUMBER = 2;
-const BOT_NUMBER = 3;
-
-const MAP_ELEMENT_NUMBERS = [
-    OBSTACLE_NUMBER,
-    PLAYER_NUMBER,
-    BOT_NUMBER
-]
+const STATICS = {
+    "obstacle": Obstacle
+};
 
 export default class Game{
     observers = [];
-    map = new GameMap(10, 10);
-    player = new Player();
-    botSet = new Set();
+    map;
+    player;
+    botSet = [];
     status = 'init';
 
-    createMapObject(elementNumber, position){
-        let mapElement = null;
-        if (elementNumber === PLAYER_NUMBER && this.player.character === null){
-            mapElement = new Character(position);
-            this.player.character = mapElement;
-        }else if (elementNumber === OBSTACLE_NUMBER){
-            mapElement = new Obstacle(position);
-        }else if (elementNumber === BOT_NUMBER){
-            mapElement = new Character(position);
-            let bot = new Bot();
-            bot.character = mapElement;
-            bot.character.velocity += Math.random();
-            this.botSet.add(bot);
-        }
-        return mapElement;
+    setMap(mapData){
+        let width = mapData["width"];
+        let height = mapData["height"];
+        let staticsData = mapData["statics"];
+        this.map = new GameMap(width, height);
+        staticsData.forEach(staticData => {
+            let staticType = STATICS[staticData["id"]];
+            let x = staticData["position"]["x"];
+            let y = staticData["position"]["y"];
+            let position = new Position(x, y);
+            if (!this.map.isValidPosition(position))
+                return;
+            let mapObject = new staticType(position);
+            this.map.addElement(mapObject);
+        });
     }
 
-    loadMap(map){
-        for (let row = 0; row < map.length; row++) {
-            var rowColumns = map[row];
-            for (let column = 0; column < rowColumns.length; column++) {
-                let elementNumber = rowColumns[column];
-                if (!elementNumber || !MAP_ELEMENT_NUMBERS.includes(elementNumber))
-                    continue;
-                let position = new Position(column, row);
-                if (!this.map.isValidPosition(position))
-                    continue;
-                let mapElement = this.createMapObject(elementNumber, position);
-                if (mapElement)
-                    this.map.addElement(mapElement);
-            }   
-        }
+    setPlayer(playerData){
+        let name = playerData["name"];
+        let x = playerData["position"]["x"];
+        let y = playerData["position"]["y"];
+        let position = new Position(x, y);
+        if (!this.map.isValidPosition(position))
+            return
+        let playerCharacter = new Character(name, position);
+        this.player = new Player(name, playerCharacter);
+        this.player.character = playerCharacter;
+        this.map.addElement(playerCharacter);
+    }
+
+    setBots(botsData){
+        botsData.forEach(botData => {
+            let name = botData["name"];
+            let x = botData["position"]["x"];
+            let y = botData["position"]["y"];
+            let position = new Position(x, y);
+            if (!this.map.isValidPosition(position))
+                return
+            let botCharacter = new Character(name, position);
+            let bot = new Bot(name, botCharacter);
+            bot.character = botCharacter;
+            this.botSet.push(bot);
+            this.map.addElement(botCharacter); 
+        });
     }
 
     botMove(bot){
         if (bot.movementEventId) return;
         let movementEventId = setInterval(()=>{
-            if (this.status !== 'playing') return;
+            if (this.status !== 'playing')
+                return;
             bot.moveCharacter(this.map);
             this.notifyObservers();
         }, bot.character.velocity * 1000);
@@ -68,9 +75,20 @@ export default class Game{
     }
 
     playerMove(direction_key){
-        if (this.status !== 'playing') return;
+        if (this.status !== 'playing')
+            return;
         let direction = MOVEMENTS[direction_key];
         this.player.moveCharacter(this.map, direction);
+    }
+
+    playerInteract(){
+        if (this.status !== 'playing') return;
+        let nextPosition = this.player.character.getNextPosition();
+        if (!this.map.isValidPosition(nextPosition))
+            return;
+        let nextPositionObject = this.map.getElementByPosition(nextPosition);
+        if (this.botSet.some(bot => bot.character === nextPositionObject))
+            nextPositionObject.sayHello();
     }
 
     play(){
@@ -89,15 +107,16 @@ export default class Game{
                 this.playerMove(event.key);
             else if (event.key === 'p')
                 (this.status === 'paused') ? this.play() : this.pause();
+            else if (event.key === ' ')
+                this.playerInteract()
             this.notifyObservers();
         });
     }
 
-    setBots(){
+    setBotsActions(){
         this.botSet.forEach(bot => {
             this.botMove(bot);
         })
-
     }
 
     addObserver(observer){

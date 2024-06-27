@@ -1,7 +1,7 @@
-export default class Obstacle{
-    position;
+import MapObject  from "./mapobject.js";
 
-    constructor(position){
-        this.position = position;
+export default class Obstacle extends MapObject{
+    toString(){
+        return '*';
     }
 }

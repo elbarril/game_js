@@ -1,7 +1,7 @@
-export default class Character{
-    position;
+import MovableMapObject from './movablemapobject.js';
 
-    constructor(position){
-        this.position = position;
+export default class Character extends MovableMapObject{
+    toString(){
+        return ":)";
     }
 }

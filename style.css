@@ -2,25 +2,39 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-body {
-    background: black;
-    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #game {
-    max-width: 200px;
+    background: black;
+    color: white;
+    max-width: 500px;
     margin: 0 auto;
 }
 
-ul {
+#game.paused {
+    color: red;
+}
+
+#game header {
+    position: relative;
+}
+
+#game.paused header h1::after{
+    content: 'paused';
+    font-size: 24px;
+    position: absolute;
+    top: 8px;
+    left: 400px;
+}
+
+#map ul {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-li {
+#map ul li {
     list-style: none;
     padding: 10px 20px;
     min-width: 50px;

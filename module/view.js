@@ -1,13 +1,15 @@
 export default class View{
-    view;
+    gameView;
+    mapView;
 
     constructor(){
-        this.view = document.querySelector("#game");
+        this.gameView = document.querySelector("#game");
+        this.mapView = this.gameView.querySelector('#map');
     }
 
-    render(map){
-        for (let row = 0; row < map.positions.length; row++) {
-            const columns = map.positions[row];
+    render(game){
+        for (let row = 0; row < game.map.positions.length; row++) {
+            const columns = game.map.positions[row];
             let rowElement = document.createElement('ul');
             for (let column = 0; column < columns.length; column++) {
                 const item = columns[column];
@@ -15,20 +17,26 @@ export default class View{
                 columnElement.innerText = item;
                 rowElement.appendChild(columnElement);
             }
-            this.view.appendChild(rowElement);
+            this.mapView.appendChild(rowElement);
         }
+        this.gameView.classList.add(game.status);
     }
 
-    update(map){
+    update(game){
         let rowIndex = 0;
         document.querySelectorAll("ul").forEach(row => {
             let columnIndex = 0;
             row.querySelectorAll("li").forEach(column => {
-                let item = map.positions[rowIndex][columnIndex];
+                let item = game.map.positions[rowIndex][columnIndex];
                 column.innerText = item;
                 columnIndex++;
             });
             rowIndex++;
         });
+        
+        if (!this.gameView.classList.contains(game.status)) {
+            this.gameView.classList.forEach(c=>this.gameView.classList.remove(c));
+            this.gameView.classList.add(game.status);
+        }
     }
 }

@@ -11,12 +11,24 @@ class GameMap{
         }
     }
 
-    add(element){
+    addElement(element){
         this.positions[element.position.y][element.position.x] = element;
     }
 
-    remove(element){
-        this.positions[element.position.y][element.position.x] = null;
+    removeElement(element){
+        let currentElement = this.positions[element.position.y][element.position.x];
+        if (currentElement === element)
+            this.positions[element.position.y][element.position.x] = null;
+    }
+
+    getElementByPosition(position){
+        return this.positions[position.y][position.x];
+    }
+
+    isValidPosition(position){
+        if (this.positions.length <= position.y || position.y < 0) return false;
+        if (this.positions[position.y].length <= position.x || position.x < 0) return false;
+        return true
     }
 }
 

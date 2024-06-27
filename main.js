@@ -10,8 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
     }).then(map => {
         game.loadMap(map);
-        game.setPlayerEvents();
+        game.setPlayerControls();
+        game.setBots();
         game.addObserver(view);
-        view.render(game.map);
+        view.render(game);
+
+        game.play();
     });
 });

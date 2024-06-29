@@ -159,13 +159,11 @@ export default class Game{
 
     playerInteract(object){
         let response = 0;
-        if (object.action) {
-            if (this.objectIsBot(object) && object.action.talks)
-                response = this.runDialog(object);
-            else
-                response = confirm(`Want you ${object.action.action}?`) ? 0 : 1;
-        }
-        alert(object.action.next[response]);
+        if (this.objectIsBot(object) && object.action.talks)
+            response = this.runDialog(object);
+        else
+            response = confirm(`Want you ${object.action.action}?`) ? 0 : 1;
+        object.action.next && alert(object.action.next[response]);
     }
 
     play(){
@@ -186,7 +184,7 @@ export default class Game{
                 (this.status === 'paused') ? this.play() : this.pause();
             else if (event.key === ' ') {
                 let object = this.getObjectInFrontPlayer();
-                object && this.playerInteract(object)
+                object && object.action && this.playerInteract(object)
             }
             this.notifyObservers();
         });

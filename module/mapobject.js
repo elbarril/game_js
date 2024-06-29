@@ -1,5 +1,6 @@
 class MapObject{
     position;
+    action;
     
     constructor(position){
         this.position = position;

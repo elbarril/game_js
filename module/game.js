@@ -4,11 +4,44 @@ import Player from "./player.js";
 import Bot from "./bot.js";
 import Character from "./character.js";
 import Obstacle from "./obstacle.js";
+import Door from "./door.js";
 import MOVEMENTS from "./movements.js";
 
 const STATICS = {
-    "obstacle": Obstacle
+    "obstacle": Obstacle,
+    "door": Door
 };
+
+class Talk {
+    say;
+    answer;
+
+    constructor (talkData) {
+        this.say = talkData["say"];
+        this.answer = talkData["answer"];
+    }
+}
+
+class Action {
+    next;
+
+    constructor (actionData) {
+        this.action = actionData["perform"];
+        this.next = actionData["next"];
+    }
+}
+
+class Dialog extends Action {
+    talks = [];
+
+    constructor(actionData) {
+        super(actionData);
+        actionData["dialog"].forEach(talkData => {
+            this.talks.push(new Talk(talkData))
+        });
+
+    }
+}
 
 export default class Game{
     observers = [];
@@ -30,6 +63,9 @@ export default class Game{
             if (!this.map.isValidPosition(position))
                 return;
             let mapObject = new staticType(position);
+            if (staticData.hasOwnProperty("action") && staticData["action"].hasOwnProperty("perform")) {
+                mapObject.action = new Action(staticData["action"]);
+            }
             this.map.addElement(mapObject);
         });
     }
@@ -56,6 +92,9 @@ export default class Game{
             if (!this.map.isValidPosition(position))
                 return
             let botCharacter = new Character(name, position);
+            if (botData.hasOwnProperty("action")){
+                botCharacter.action = botData["action"]["perform"] === "dialog" ? new Dialog(botData["action"]) : new Action(botData["action"]);
+            }
             let bot = new Bot(name, botCharacter);
             bot.character = botCharacter;
             this.botSet.push(bot);
@@ -81,14 +120,52 @@ export default class Game{
         this.player.moveCharacter(this.map, direction);
     }
 
-    playerInteract(){
+    getObjectInFrontPlayer() {
         if (this.status !== 'playing') return;
         let nextPosition = this.player.character.getNextPosition();
         if (!this.map.isValidPosition(nextPosition))
             return;
-        let nextPositionObject = this.map.getElementByPosition(nextPosition);
-        if (this.botSet.some(bot => bot.character === nextPositionObject))
-            nextPositionObject.sayHello();
+        return this.map.getElementByPosition(nextPosition);
+    }
+
+    objectIsBot(object) {
+        return this.botSet.some(bot => bot.character === object && bot.character.action);
+    }
+
+    botSay(bot, say) {
+        alert(say.replace("%name%", bot.name));
+    }
+
+    playerSay(say) {
+        let response;
+        let selected;
+        say.forEach((answer, answerKey) => {
+            if (selected) return;
+            selected = confirm(answer.replace("%name%", this.player.character.name));
+            if (selected)
+                response = answerKey;
+        });
+        return response;
+    }
+
+    runDialog(object) {
+        let response;
+        object.action.talks.forEach(talk => {
+            talk.say && this.botSay(object, talk.say[response ?? 0]);
+            talk.answer && (response = this.playerSay(talk.answer));
+        });
+        return response;
+    }
+
+    playerInteract(object){
+        let response = 0;
+        if (object.action) {
+            if (this.objectIsBot(object) && object.action.talks)
+                response = this.runDialog(object);
+            else
+                response = confirm(`Want you ${object.action.action}?`) ? 0 : 1;
+        }
+        alert(object.action.next[response]);
     }
 
     play(){
@@ -107,8 +184,10 @@ export default class Game{
                 this.playerMove(event.key);
             else if (event.key === 'p')
                 (this.status === 'paused') ? this.play() : this.pause();
-            else if (event.key === ' ')
-                this.playerInteract()
+            else if (event.key === ' ') {
+                let object = this.getObjectInFrontPlayer();
+                object && this.playerInteract(object)
+            }
             this.notifyObservers();
         });
     }

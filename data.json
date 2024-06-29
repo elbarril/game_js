@@ -3,7 +3,7 @@
         "width": 10,
         "height": 10,
         "statics": [
-            {"id": "obstacle", "position": {"x": 0, "y": 0}},
+            {"id": "door", "position": {"x": 0, "y": 0}, "action": {"perform": "open", "next":[1,2]}},
             {"id": "obstacle", "position": {"x": 1, "y": 1}},
             {"id": "obstacle", "position": {"x": 2, "y": 2}},
             {"id": "obstacle", "position": {"x": 3, "y": 3}},
@@ -21,8 +21,25 @@
         }
     },
     "bots": [
-        {"name": "Bot 1", "position": {"x": 4, "y": 2}},
+        {
+            "name": "Bot 1",
+            "position": {"x": 4, "y": 2},
+            "action":
+                {
+                    "perform": "dialog",
+                    "dialog": [
+                        {
+                            "say": ["Hi my name is %name%. What's yours?"],
+                            "answer": ["My name is %name%", "I do not remember..."]
+                        },
+                        {
+                            "say": ["Nice to meet you.", "oh..."]
+                        }
+                    ],
+                    "next": [1,2]
+                }
+        },
         {"name": "Bot 2", "position": {"x": 7, "y": 4}},
-        {"name": "Bot 3", "position": {"x": 2, "y": 6}}
+        {"name": "Bot 3", "position": {"x": 2, "y": 6}, "action": {"perform": "kill him", "next": [1,2]}}
     ]
 }

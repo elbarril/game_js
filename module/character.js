@@ -11,8 +11,4 @@ export default class Character extends MovableMapObject{
     toString(){
         return ":)";
     }
-
-    sayHello(){
-        alert(`Hello! I'm ${this.name}`);
-    }
 }

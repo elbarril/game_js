@@ -21,7 +21,7 @@ class GameView{
             let mapRow = document.createElement('ul');
             for (let column = 0; column < positions[row].length; column++) {
                 let mapColumn = document.createElement('li');
-                mapColumn.innerText = positions[row][column];
+                mapColumn.classList.add(positions[row][column]);
                 mapRow.appendChild(mapColumn);
             }
             this.map.appendChild(mapRow);
@@ -35,7 +35,7 @@ class GameView{
         document.querySelectorAll('ul').forEach(mapRow => {
             let column = 0;
             mapRow.querySelectorAll('li').forEach(mapColumn =>{
-                mapColumn.innerText = positions[row][column];
+                mapColumn.classList.add(positions[row][column]);
                 column++;
             });
             row++;

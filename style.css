@@ -28,3 +28,31 @@ li {
     background-color: darkblue;
     position: relative;
 }
+
+.limit{
+    background-color: aqua;
+}
+
+.UP{
+    background-image: url(https://previews.123rf.com/images/kamilabay/kamilabay2207/kamilabay220700067/188491925-hombre-que-viene-por-detr%C3%A1s-vector-de-dibujo-de-una-l%C3%ADnea-concepto-de-una-persona-que-va-a-la.jpg);
+    background-size: contain;
+}
+.DOWN{
+    background-image: url(https://cms-assets.tutsplus.com/cdn-cgi/image/width=600/uploads/users/1112/posts/25975/final_image/animate-walk-front-progress-04.gif);
+    background-size: contain;
+}
+
+.LEFT{
+    background-image: url(https://www.gifsanimados.org/data/media/1635/andando-y-caminando-imagen-animada-0047.gif);
+    background-size: contain;
+}
+
+.RIGHT{
+    background-image: url(https://i.gifer.com/27PJ.gif);
+    background-size: contain;
+}
+
+.door{
+    background-image: url(https://i.gifer.com/W2Yg.gif);
+    background-size: contain;
+}

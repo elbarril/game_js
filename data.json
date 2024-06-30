@@ -1,20 +1,21 @@
 {
     "map": {
         "width": 10,
-        "height": 10,
-        "statics": [
-            {"id": "door", "position": {"x": 0, "y": 0}, "action": {"perform": "open", "next":[1,2]}},
-            {"id": "obstacle", "position": {"x": 1, "y": 1}},
-            {"id": "obstacle", "position": {"x": 2, "y": 2}},
-            {"id": "obstacle", "position": {"x": 3, "y": 3}},
-            {"id": "obstacle", "position": {"x": 6, "y": 6}},
-            {"id": "obstacle", "position": {"x": 7, "y": 7}},
-            {"id": "obstacle", "position": {"x": 8, "y": 8}},
-            {"id": "obstacle", "position": {"x": 9, "y": 9}}
-        ]
+        "height": 10
     },
+    "statics": [
+        {"id": "door", "position": {"x": 0, "y": 0}, "action": {"perform": "open", "next":[1,2]}},
+        {"id": "obstacle", "position": {"x": 1, "y": 1}},
+        {"id": "obstacle", "position": {"x": 2, "y": 2}},
+        {"id": "obstacle", "position": {"x": 3, "y": 3}},
+        {"id": "obstacle", "position": {"x": 6, "y": 6}},
+        {"id": "obstacle", "position": {"x": 7, "y": 7}},
+        {"id": "obstacle", "position": {"x": 8, "y": 8}},
+        {"id": "obstacle", "position": {"x": 9, "y": 9}}
+    ],
     "player": {
-        "name": "Player",
+        "name": "George",
+        "id": "character",
         "position": {
             "x": 4,
             "y": 8
@@ -22,7 +23,8 @@
     },
     "bots": [
         {
-            "name": "Bot 1",
+            "id": "botcharacter",
+            "name": "John",
             "position": {"x": 4, "y": 2},
             "action":
                 {
@@ -39,7 +41,7 @@
                     "next": [1,2]
                 }
         },
-        {"name": "Bot 2", "position": {"x": 7, "y": 4}},
-        {"name": "Bot 3", "position": {"x": 2, "y": 6}, "action": {"perform": "kill him", "next": [1,2]}}
+        {"id": "botcharacter", "name": "Alice", "position": {"x": 7, "y": 4}},
+        {"id": "botcharacter", "name": "Frederic Ghost", "position": {"x": 2, "y": 6}, "action": {"perform": "kill him", "next": [1,2]}}
     ]
 }

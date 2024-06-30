@@ -3,45 +3,17 @@ import GameMap from "./map.js";
 import Player from "./player.js";
 import Bot from "./bot.js";
 import Character from "./character.js";
+import BotCharacter from "./botcharacter.js";
 import Obstacle from "./obstacle.js";
 import Door from "./door.js";
-import MOVEMENTS from "./movements.js";
+import {default as MOVEMENTS, getRandomDirectionKey} from "./movements.js";
 
-const STATICS = {
+const MAP_OBJECTS = {
     "obstacle": Obstacle,
-    "door": Door
+    "door": Door,
+    "character": Character,
+    "botcharacter": BotCharacter
 };
-
-class Talk {
-    say;
-    answer;
-
-    constructor (talkData) {
-        this.say = talkData["say"];
-        this.answer = talkData["answer"];
-    }
-}
-
-class Action {
-    next;
-
-    constructor (actionData) {
-        this.action = actionData["perform"];
-        this.next = actionData["next"];
-    }
-}
-
-class Dialog extends Action {
-    talks = [];
-
-    constructor(actionData) {
-        super(actionData);
-        actionData["dialog"].forEach(talkData => {
-            this.talks.push(new Talk(talkData))
-        });
-
-    }
-}
 
 export default class Game{
     observers = [];
@@ -50,78 +22,64 @@ export default class Game{
     botSet = [];
     status = 'init';
 
-    setMap(mapData){
-        let width = mapData["width"];
-        let height = mapData["height"];
-        let staticsData = mapData["statics"];
-        this.map = new GameMap(width, height);
-        staticsData.forEach(staticData => {
-            let staticType = STATICS[staticData["id"]];
-            let x = staticData["position"]["x"];
-            let y = staticData["position"]["y"];
-            let position = new Position(x, y);
-            if (!this.map.isValidPosition(position))
-                return;
-            let mapObject = new staticType(position);
-            if (staticData.hasOwnProperty("action") && staticData["action"].hasOwnProperty("perform")) {
-                mapObject.action = new Action(staticData["action"]);
-            }
-            this.map.addElement(mapObject);
+    init(data){
+        this.setMap(data.map);
+        
+        data.statics.forEach(staticData => {
+            let staticObject = this.setMapObject(staticData);
+            this.map.addElement(staticObject);
+            staticData?.action && staticObject.setAction(staticData.action);
         });
+
+        let player = this.setPlayer(data.player);
+        this.map.addElement(player.character);
+
+        data.bots.forEach(botData => {
+            let bot = this.setBot(botData);
+            this.map.addElement(bot.character);
+            botData?.action && bot.character.setAction(botData.action);
+        });
+    }
+
+    setMap(mapData){
+        let width = mapData.width;
+        let height = mapData.height;
+        this.map = new GameMap(width, height);
+        return this.map;
+    }
+
+    setMapObject(mapObjectData, objectName=null){
+        let objectId = mapObjectData.id;
+        let x = mapObjectData.position.x;
+        let y = mapObjectData.position.y;
+        let position = new Position(x, y);
+        let staticType = MAP_OBJECTS[objectId];
+        let mapObject = objectName ? new staticType(objectName, position) : new staticType(position);
+        return mapObject;
+    }
+
+    setCharacter(characterData){
+        return this.setMapObject(characterData, characterData.name);
     }
 
     setPlayer(playerData){
-        let name = playerData["name"];
-        let x = playerData["position"]["x"];
-        let y = playerData["position"]["y"];
-        let position = new Position(x, y);
-        if (!this.map.isValidPosition(position))
-            return
-        let playerCharacter = new Character(name, position);
-        this.player = new Player(name, playerCharacter);
-        this.player.character = playerCharacter;
-        this.map.addElement(playerCharacter);
+        let playerCharacter = this.setCharacter(playerData);
+        this.player = new Player(playerCharacter.name, playerCharacter);
+        this.setPlayerControls();
+        return this.player;
     }
 
-    setBots(botsData){
-        botsData.forEach(botData => {
-            let name = botData["name"];
-            let x = botData["position"]["x"];
-            let y = botData["position"]["y"];
-            let position = new Position(x, y);
-            if (!this.map.isValidPosition(position))
-                return
-            let botCharacter = new Character(name, position);
-            if (botData.hasOwnProperty("action")){
-                botCharacter.action = botData["action"]["perform"] === "dialog" ? new Dialog(botData["action"]) : new Action(botData["action"]);
-            }
-            let bot = new Bot(name, botCharacter);
-            bot.character = botCharacter;
-            this.botSet.push(bot);
-            this.map.addElement(botCharacter); 
-        });
-    }
-
-    botMove(bot){
-        if (bot.movementEventId) return;
-        let movementEventId = setInterval(()=>{
-            if (this.status !== 'playing')
-                return;
-            bot.moveCharacter(this.map);
-            this.notifyObservers();
-        }, bot.character.velocity * 1000);
-        bot.movementEventId = movementEventId;
-    }
-
-    playerMove(direction_key){
-        if (this.status !== 'playing')
-            return;
-        let direction = MOVEMENTS[direction_key];
-        this.player.moveCharacter(this.map, direction);
+    setBot(botData){
+        let botCharacter = this.setCharacter(botData);
+        let bot = new Bot(botCharacter.name, botCharacter);
+        this.botSet.push(bot);
+        this.setBotMoveEvent(bot);
+        return bot;
     }
 
     getObjectInFrontPlayer() {
-        if (this.status !== 'playing') return;
+        if (this.status !== 'playing')
+            return;
         let nextPosition = this.player.character.getNextPosition();
         if (!this.map.isValidPosition(nextPosition))
             return;
@@ -157,6 +115,19 @@ export default class Game{
         return response;
     }
 
+    moveCharacter(character, direction_key){
+        if (this.status !== 'playing')
+            return;
+        let direction = MOVEMENTS[direction_key];
+        if (character.direction !== direction)
+            return character.rotate(direction);
+        let nextPosition = character.getNextPosition();
+        if (this.map.getElementByPosition(nextPosition)) return;
+        this.map.removeElement(character);
+        character.move();
+        this.map.addElement(character);
+    }
+
     playerInteract(object){
         let response = 0;
         if (this.objectIsBot(object) && object.action.talks)
@@ -179,7 +150,7 @@ export default class Game{
     setPlayerControls(){
         document.addEventListener('keydown', event => {
             if (MOVEMENTS.hasOwnProperty(event.key))
-                this.playerMove(event.key);
+                this.moveCharacter(this.player.character, event.key);
             else if (event.key === 'p')
                 (this.status === 'paused') ? this.play() : this.pause();
             else if (event.key === ' ') {
@@ -190,10 +161,14 @@ export default class Game{
         });
     }
 
-    setBotsActions(){
-        this.botSet.forEach(bot => {
-            this.botMove(bot);
-        })
+    setBotMoveEvent(bot){
+        if (bot.movementEventId)
+            return;
+        let movementEventId = setInterval(()=>{
+            this.moveCharacter(bot.character, getRandomDirectionKey());
+            this.notifyObservers();
+        }, bot.character.velocity * 1000);
+        bot.movementEventId = movementEventId;
     }
 
     addObserver(observer){

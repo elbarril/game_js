@@ -10,7 +10,7 @@ export const DOWN_KEY = "ArrowDown"
 export const LEFT_KEY = "ArrowLeft"
 export const RIGHT_KEY = "ArrowRight"
 
-const DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+const DIRECTION_KEYS = [UP_KEY, DOWN_KEY, LEFT_KEY, RIGHT_KEY]
 
 const MOVEMENTS = {
     [UP_KEY]: UP,
@@ -19,10 +19,10 @@ const MOVEMENTS = {
     [RIGHT_KEY]: RIGHT
 }
 
-function getRandomDirection(){
-    return DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+function getRandomDirectionKey(){
+    return DIRECTION_KEYS[Math.floor(Math.random() * DIRECTION_KEYS.length)];
 }
 
 export default MOVEMENTS;
 
-export {getRandomDirection};
+export {getRandomDirectionKey};

@@ -12,16 +12,19 @@ class GameMap{
     }
 
     addElement(element){
-        this.positions[element.position.y][element.position.x] = element;
+        if (!this.isValidPosition(element.position)) return;
+        (this.positions[element.position.y][element.position.x] = element);
     }
 
     removeElement(element){
+        if (!this.isValidPosition(element.position)) return;
         let currentElement = this.positions[element.position.y][element.position.x];
         if (currentElement === element)
             this.positions[element.position.y][element.position.x] = null;
     }
 
     getElementByPosition(position){
+        if (!this.isValidPosition(position)) return;
         return this.positions[position.y][position.x];
     }
 

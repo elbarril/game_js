@@ -9,15 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("data.json").then(response => {
         return response.json();
     }).then(data => {
-        game.setMap(data["map"]);
-        game.setPlayer(data["player"]);
-        game.setBots(data["bots"]);
-
-        game.setPlayerControls();
-        game.setBotsActions();
+        game.init(data);
         game.addObserver(view);
         view.render(game);
-
         game.play();
     });
 });

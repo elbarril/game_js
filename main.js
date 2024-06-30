@@ -2,7 +2,7 @@ import Game from './model/game.js'
 import GameView from './view/gameview.js'
 
 var playerName = 'Player';
-var npcName = 'NPC'
+var npcName = 'PlayerBot'
 
 document.addEventListener("DOMContentLoaded", () => {
     //while (!playerName){

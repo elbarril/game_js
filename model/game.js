@@ -5,6 +5,7 @@ import Character from './character.js'
 import Obstacle from './obstacle.js'
 import PlayerBot from './playerbot.js'
 import MOVEMENTS from './MOVEMENTS.js'
+import Interactable from './interactable.js'
 
 class Game{
 
@@ -13,6 +14,7 @@ class Game{
     playerBot;
     mapObserver = [];
     status;
+    interact = new Interactable([7,8]);
 
     constructor(playerName, npcName){
 
@@ -33,6 +35,8 @@ class Game{
         }else if(itemNumber === 3){
             mapItem = new Character(position);
             this.playerBot.character = mapItem;  
+        }else if(itemNumber === 4){
+            mapItem = new Interactable(position);
         }
         return mapItem;
     }
@@ -58,6 +62,7 @@ class Game{
             const direction = MOVEMENTS[movementKey];
             game.player.moveCharacter(game.map, direction);
             game.playerBot.interactWithPlayer(game.player);
+            game.interact.interactPlayer(game.player);
             game.notifyMapObserver();
         }
 

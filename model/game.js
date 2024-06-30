@@ -3,22 +3,38 @@ import Player from './player.js'
 import GameMap from './map.js'
 import Character from './character.js'
 import Obstacle from './obstacle.js'
-import NPC from './npc.js'
+import PlayerBot from './playerbot.js'
 import MOVEMENTS from './MOVEMENTS.js'
 
 class Game{
 
     map = new GameMap(10,10);
     player;
-    npc;
+    playerBot;
     mapObserver = [];
+    status;
 
     constructor(playerName, npcName){
 
+        this.status = 'init';
         this.player = new Player(playerName);
-        this.npc = new NPC(npcName);
-        this.npcMovement();
+        this.playerBot = new PlayerBot(npcName);
 
+    }
+
+    createMapItem(itemNumber, position){
+        let mapItem = null;
+        
+        if (itemNumber === 2){
+            mapItem = new Character(position);
+            this.player.character = mapItem;
+        }else if(itemNumber === 1){
+            mapItem = new Obstacle(position);
+        }else if(itemNumber === 3){
+            mapItem = new Character(position);
+            this.playerBot.character = mapItem;  
+        }
+        return mapItem;
     }
 
     loadMap(map){
@@ -27,37 +43,48 @@ class Game{
             for (let column = 0; column < map[row].length; column++) {
                 const itemNumber = map[row][column];
                 if (!itemNumber) continue;
-                let mapItem = null;
-                var position = new Position(column, row);
-                if (itemNumber ===2){
-                    mapItem = new Character(position);
-                    this.player.character = mapItem;
-                }else if(itemNumber === 1){
-                    mapItem = new Obstacle(position);
-                }else if(itemNumber === 3){
-                    mapItem = new Character(position);
-                    this.npc.character = mapItem;  
-                }
-                if (mapItem) this.map.add(mapItem);
+                const position = new Position(column, row);
+                const mapItem = this.createMapItem(itemNumber, position);
+                if (!mapItem) continue;
+                this.map.add(mapItem);
             }   
         }
     }
     
     setPlayerControls(){
+
+        function playerMoveCharacter(game, movementKey){
+            if (game.status != 'playing') return;
+            const direction = MOVEMENTS[movementKey];
+            game.player.moveCharacter(game.map, direction);
+            game.playerBot.interactWithPlayer(game.player);
+            game.notifyMapObserver();
+        }
+
+        function pause(game){
+            game.status = 'paused';
+        }
+
+        function play(game){
+            game.play();
+        }
+
         document.addEventListener('keydown', event => {
-            if (!MOVEMENTS.hasOwnProperty(event.key)) return;
-            const direction = MOVEMENTS[event.key];
-            this.player.moveCharacter(this.map, direction, this.npc.character);
-            this.npc.msgNpc(this.player, direction);
-            this.notifyMapObserver();
+            if (MOVEMENTS.hasOwnProperty(event.key)) playerMoveCharacter(this, event.key);
+            else if (event.key === 'p') pause(this);
+            else if(event.key === 'Enter') play(this);
         });
     }
     
-    npcMovement() {
-        setInterval(() => {
-            this.npc.move(this.map);
+    setPlayerBotActions() {
+        if (this.playerBot.movementIntervalId) return;
+        const movementIntervalId = setInterval(() => {
+            if (this.status != 'playing') return;
+            this.playerBot.moveCharacter(this.map);
             this.notifyMapObserver();
         }, 1000);
+
+        this.playerBot.movementIntervalId = movementIntervalId;
     }
 
     addMapObserver(mapObserver){
@@ -66,6 +93,11 @@ class Game{
 
     notifyMapObserver(){
         this.mapObserver.updateMap(this.map.positions);
+    }
+
+    play(){
+        this.status = 'playing';
+        this.setPlayerBotActions();
     }
 
 }

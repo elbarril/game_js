@@ -35,6 +35,7 @@ class GameView{
         document.querySelectorAll('ul').forEach(mapRow => {
             let column = 0;
             mapRow.querySelectorAll('li').forEach(mapColumn =>{
+                mapColumn.classList.forEach(c=>mapColumn.classList.remove(c));
                 mapColumn.classList.add(positions[row][column]);
                 column++;
             });

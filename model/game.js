@@ -14,7 +14,7 @@ class Game{
     playerBot;
     mapObserver = [];
     status;
-    interact = new Interactable([7,8]);
+    interact;
 
     constructor(playerName, npcName){
 
@@ -34,9 +34,10 @@ class Game{
             mapItem = new Obstacle(position);
         }else if(itemNumber === 3){
             mapItem = new Character(position);
-            this.playerBot.character = mapItem;  
+            this.playerBot.character = mapItem;
         }else if(itemNumber === 4){
             mapItem = new Interactable(position);
+            this.interact = mapItem;
         }
         return mapItem;
     }
@@ -80,7 +81,7 @@ class Game{
             else if(event.key === 'Enter') play(this);
         });
     }
-    
+
     setPlayerBotActions() {
         if (this.playerBot.movementIntervalId) return;
         const movementIntervalId = setInterval(() => {

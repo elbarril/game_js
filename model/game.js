@@ -63,7 +63,7 @@ class Game{
             const direction = MOVEMENTS[movementKey];
             game.player.moveCharacter(game.map, direction);
             game.playerBot.interactWithPlayer(game.player);
-            game.interact.interactPlayer(game.player);
+            game.changeScene()
             game.notifyMapObserver();
         }
 
@@ -80,6 +80,25 @@ class Game{
             else if (event.key === 'p') pause(this);
             else if(event.key === 'Enter') play(this);
         });
+    }
+    
+    changeScene(){
+        let goOutside = this.interact.interactPlayer(this.player);
+        if (goOutside){
+            let data2 = [
+                [1,1,1,1,1,1,1,1,1,1],
+                [1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,3,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,1],
+                [1,4,0,0,2,0,0,0,0,1],
+                [1,1,1,1,1,1,1,1,1,1]
+            ]
+            this.loadMap(data2);
+        }
     }
 
     setPlayerBotActions() {

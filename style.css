@@ -27,6 +27,7 @@ li {
     height: 40px;
     background-color: darkblue;
     position: relative;
+    background-repeat: no-repeat;
 }
 
 .limit{

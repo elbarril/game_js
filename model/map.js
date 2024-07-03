@@ -11,6 +11,10 @@ class GameMap{
         }
     }
 
+    get(y,x){
+        return this.positions[y][x];
+    }
+
     add(mapItem){
         this.positions[mapItem.position.y][mapItem.position.x] = mapItem;
     }

@@ -10,8 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
     //}
     let game = new Game(playerName, npcName);
     let view = new GameView();
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const sceneName = urlParams.get('name') ?? 'data';
 
-    fetch('data.json').then(response => {
+    fetch(sceneName + '.json').then(response => {
         return response.json();
     }).then(data =>{
         game.loadMap(data);

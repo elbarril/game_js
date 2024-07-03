@@ -9,19 +9,20 @@ import Interactable from './interactable.js'
 
 class Game{
 
-    map = new GameMap(10,10);
+    map;
     player;
     playerBot;
     mapObserver = [];
     status;
     interact;
+    bots;
 
     constructor(playerName, npcName){
 
         this.status = 'init';
         this.player = new Player(playerName);
         this.playerBot = new PlayerBot(npcName);
-
+        this.bots = [];
     }
 
     createMapItem(itemNumber, position){
@@ -33,16 +34,19 @@ class Game{
         }else if(itemNumber === 1){
             mapItem = new Obstacle(position);
         }else if(itemNumber === 3){
+            let bot = new PlayerBot('name');
             mapItem = new Character(position);
-            this.playerBot.character = mapItem;
+            bot.character = mapItem;
+            this.bots.push(bot);
         }else if(itemNumber === 4){
             mapItem = new Interactable(position);
             this.interact = mapItem;
         }
         return mapItem;
     }
-
+    
     loadMap(map){
+        this.map = new GameMap(10,10);
     
         for (let row = 0; row < map.length; row++) {
             for (let column = 0; column < map[row].length; column++) {
@@ -62,8 +66,6 @@ class Game{
             if (game.status != 'playing') return;
             const direction = MOVEMENTS[movementKey];
             game.player.moveCharacter(game.map, direction);
-            game.playerBot.interactWithPlayer(game.player);
-            game.changeScene()
             game.notifyMapObserver();
         }
 
@@ -75,41 +77,42 @@ class Game{
             game.play();
         }
 
+        function interact(game){
+            let nextX = game.player.character.position.x + game.player.character.direction.x;
+            let nextY = game.player.character.position.y + game.player.character.direction.y;
+            let object = game.map.get(nextY, nextX)
+            if (game.bots.some(b => b.character === object)){
+                object.say('Hi');
+            }
+
+            if (object === game.interact){
+                if (game.interact.action()){
+                    game.changeScene()
+                }
+            }
+        }
+
         document.addEventListener('keydown', event => {
             if (MOVEMENTS.hasOwnProperty(event.key)) playerMoveCharacter(this, event.key);
+            else if (event.key === 'e') interact(this);
             else if (event.key === 'p') pause(this);
             else if(event.key === 'Enter') play(this);
         });
     }
     
     changeScene(){
-        let goOutside = this.interact.interactPlayer(this.player);
-        if (goOutside){
-            let data2 = [
-                [1,1,1,1,1,1,1,1,1,1],
-                [1,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,3,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,1],
-                [1,4,0,0,2,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1]
-            ]
-            this.loadMap(data2);
-        }
+        window.location.href = '/?name=scene2';
     }
 
-    setPlayerBotActions() {
-        if (this.playerBot.movementIntervalId) return;
+    setPlayerBotActions(bot) {
+        if (bot.movementIntervalId) return;
         const movementIntervalId = setInterval(() => {
             if (this.status != 'playing') return;
-            this.playerBot.moveCharacter(this.map);
+            bot.moveCharacter(this.map);
             this.notifyMapObserver();
-        }, 1000);
+        }, 1000*Math.random());
 
-        this.playerBot.movementIntervalId = movementIntervalId;
+        bot.movementIntervalId = movementIntervalId;
     }
 
     addMapObserver(mapObserver){
@@ -122,7 +125,9 @@ class Game{
 
     play(){
         this.status = 'playing';
-        this.setPlayerBotActions();
+        for (let index = 0; index < this.bots.length; index++) {
+            this.setPlayerBotActions(this.bots[index]);
+        }
     }
 
 }

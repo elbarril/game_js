@@ -17,46 +17,77 @@ class Game{
     interact;
     bots;
 
+    
     constructor(playerName, npcName){
-
+        
         this.status = 'init';
         this.player = new Player(playerName);
         this.playerBot = new PlayerBot(npcName);
         this.bots = [];
     }
-
-    createMapItem(itemNumber, position){
-        let mapItem = null;
+    
+    
+    createMapItem(item){
+        let mapItems = [];
+        let mapItem= null;
         
-        if (itemNumber === 2){
+        function iterationItem(item) {
+            let positions = [];
+            for (let pos of item["position"]) {
+                let x = pos.x;
+                let y = pos.y;
+                positions.push(new Position(x, y));
+            }
+            return positions;
+        }
+
+        if (item["player"]){
+            let x = item["position"]["x"];
+            let y =item["position"]["y"];
+            let position = new Position(x,y);
             mapItem = new Character(position);
             this.player.character = mapItem;
-        }else if(itemNumber === 1){
-            mapItem = new Obstacle(position);
-        }else if(itemNumber === 3){
-            let bot = new PlayerBot('name');
-            mapItem = new Character(position);
-            bot.character = mapItem;
-            this.bots.push(bot);
-        }else if(itemNumber === 4){
-            mapItem = new Interactable(position);
+            mapItems.push(mapItem);
+
+        }else if(item["limit"]){
+            const positions = iterationItem(item);
+            for (let position of positions) {
+                mapItem = new Obstacle(position);
+                mapItems.push(mapItem);
+            }
+
+        }else if(item["bot"]){
+            const positions = iterationItem(item);
+            for (let position of positions) {
+                mapItem = new Character(position);
+                let bot = new PlayerBot('name');
+                bot.character = mapItem;
+                this.bots.push(bot);
+                mapItems.push(mapItem);
+            }
+            
+
+        }else if(item["door"]){
+            mapItem = new Interactable(item["position"]);
             this.interact = mapItem;
+            mapItems.push(mapItem);
         }
-        return mapItem;
+        
+        return mapItems;
+    
     }
     
-    loadMap(map){
-        this.map = new GameMap(10,10);
-    
-        for (let row = 0; row < map.length; row++) {
-            for (let column = 0; column < map[row].length; column++) {
-                const itemNumber = map[row][column];
-                if (!itemNumber) continue;
-                const position = new Position(column, row);
-                const mapItem = this.createMapItem(itemNumber, position);
-                if (!mapItem) continue;
+    loadMap(x,y, items){
+        this.map = new GameMap(x,y);
+        
+        for (let index = 0; index < items.length; index++) {
+            const mapItems = this.createMapItem(items[index]);
+            console.log(mapItems);
+            if (!mapItems) continue;
+            mapItems.forEach(mapItem => {
                 this.map.add(mapItem);
-            }   
+            });
+            
         }
     }
     

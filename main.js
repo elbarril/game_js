@@ -17,7 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(sceneName + '.json').then(response => {
         return response.json();
     }).then(data =>{
-        game.loadMap(data);
+        let x = data.map.width;
+        let y = data.map.height;
+        let items = data.items;
+        game.loadMap(x,y, items);
         game.setPlayerControls();
         game.addMapObserver(view);
 

@@ -1,14 +1,10 @@
 import MapItem from "./mapitem.js";
 
 class Interactable extends MapItem{
+    action;
 
-    action(){
-        return confirm('you wanna go?');
-    }
-
-    toString(){
-
-        return 'door';
+    doAction(){
+        return confirm(this.action);
     }
 
 }

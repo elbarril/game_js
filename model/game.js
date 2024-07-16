@@ -7,86 +7,89 @@ import PlayerBot from './playerbot.js'
 import MOVEMENTS from './MOVEMENTS.js'
 import Interactable from './interactable.js'
 
+class Door extends Interactable{
+    constructor(position){
+        super(position);
+        this.action = 'you wanna go?';
+    }
+    
+    toString(){
+
+        return 'door';
+    }
+
+}
+
 class Game{
 
     map;
     player;
-    playerBot;
     mapObserver = [];
     status;
     interact;
     bots;
 
     
-    constructor(playerName, npcName){
+    constructor(playerName){
         
         this.status = 'init';
         this.player = new Player(playerName);
-        this.playerBot = new PlayerBot(npcName);
         this.bots = [];
     }
     
-    
+    createPlayer(player){
+        let position = this.createPosition(player.position)
+        let playerCharacter = new Character(position);
+
+        if (player.type === "player"){
+            this.player.character = playerCharacter;
+
+        }else if(player.type === "bot"){
+            let bot = new PlayerBot('name');
+            bot.character = playerCharacter;
+            this.bots.push(bot);
+        }
+        return playerCharacter;
+
+    }
+
     createMapItem(item){
-        let mapItems = [];
         let mapItem= null;
-        
-        function iterationItem(item) {
-            let positions = [];
-            for (let pos of item["position"]) {
-                let x = pos.x;
-                let y = pos.y;
-                positions.push(new Position(x, y));
-            }
-            return positions;
-        }
+        let position = this.createPosition(item.position);
 
-        if (item["type"] === "player"){
-            let x = item["position"]["x"];
-            let y =item["position"]["y"];
-            let position = new Position(x,y);
-            mapItem = new Character(position);
-            this.player.character = mapItem;
-            mapItems.push(mapItem);
+        if(item.type === "limit"){
+            mapItem = new Obstacle(position);
 
-        }else if(item["type"] === "limit"){
-            const positions = iterationItem(item);
-            for (let position of positions) {
-                mapItem = new Obstacle(position);
-                mapItems.push(mapItem);
-            }
-
-        }else if(item["type"] === "bot"){
-            const positions = iterationItem(item);
-            for (let position of positions) {
-                mapItem = new Character(position);
-                let bot = new PlayerBot('name');
-                bot.character = mapItem;
-                this.bots.push(bot);
-                mapItems.push(mapItem);
-            }
-
-        }else if(item["type"] === "door"){
-            mapItem = new Interactable(item["position"]);
+        }else if(item.type === "door"){
+            mapItem = new Door(position);
             this.interact = mapItem;
-            mapItems.push(mapItem);
         }
         
-        return mapItems;
+        return mapItem;
     
     }
     
-    loadMap(x,y, items){
+    createPosition(position){
+        let x = position.x;
+        let y = position.y;
+        return new Position(x,y)
+    }
+
+    loadMap(x,y, items, players){
         this.map = new GameMap(x,y);
         
-        for (let index = 0; index < items.length; index++) {
-            const mapItems = this.createMapItem(items[index]);
-            console.log(mapItems);
-            if (!mapItems) continue;
-            mapItems.forEach(mapItem => {
+        for (let index in items) {
+            const item = items[index];
+            for (let positonIndex in item.positions){
+                const position = item.positions[positonIndex]
+                const mapItem = this.createMapItem({"type":item.type, "position": position});
                 this.map.add(mapItem);
-            });
-            
+            }
+        }
+
+        for (let index = 0; index < players.length; index++) {
+            const player = this.createPlayer(players[index]);
+            this.map.add(player)
         }
     }
     
@@ -116,7 +119,7 @@ class Game{
             }
 
             if (object === game.interact){
-                if (game.interact.action()){
+                if (game.interact.doAction()){
                     game.changeScene()
                 }
             }

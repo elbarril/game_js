@@ -2,7 +2,6 @@ import Game from './model/game.js'
 import GameView from './view/gameview.js'
 
 var playerName = 'Player';
-var npcName = 'PlayerBot'
 
 document.addEventListener("DOMContentLoaded", () => {
     //while (!playerName){
@@ -20,7 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
         let x = data.map.width;
         let y = data.map.height;
         let items = data.items;
-        game.loadMap(x,y, items);
+        let players = data.players;
+        game.loadMap(x,y, items, players);
         game.setPlayerControls();
         game.addMapObserver(view);
 

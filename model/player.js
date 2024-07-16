@@ -15,8 +15,8 @@ class Player{
 
         let nextX = this.character.position.x + direction.x;
         let nextY = this.character.position.y + direction.y;
-        if (map.positions.length < nextY || nextY < 0 ) return;
-        if (map.positions[nextY].length < nextX || nextX < 0 ) return;
+        if (map.positions.length <= nextY || nextY < 0 ) return;
+        if (map.positions[nextY].length <= nextX || nextX < 0 ) return;
         if (map.positions[nextY][nextX]) return;
 
         map.remove(this.character);

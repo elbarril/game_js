@@ -41,7 +41,7 @@ class Game{
             return positions;
         }
 
-        if (item["player"]){
+        if (item["type"] === "player"){
             let x = item["position"]["x"];
             let y =item["position"]["y"];
             let position = new Position(x,y);
@@ -49,14 +49,14 @@ class Game{
             this.player.character = mapItem;
             mapItems.push(mapItem);
 
-        }else if(item["limit"]){
+        }else if(item["type"] === "limit"){
             const positions = iterationItem(item);
             for (let position of positions) {
                 mapItem = new Obstacle(position);
                 mapItems.push(mapItem);
             }
 
-        }else if(item["bot"]){
+        }else if(item["type"] === "bot"){
             const positions = iterationItem(item);
             for (let position of positions) {
                 mapItem = new Character(position);
@@ -65,9 +65,8 @@ class Game{
                 this.bots.push(bot);
                 mapItems.push(mapItem);
             }
-            
 
-        }else if(item["door"]){
+        }else if(item["type"] === "door"){
             mapItem = new Interactable(item["position"]);
             this.interact = mapItem;
             mapItems.push(mapItem);

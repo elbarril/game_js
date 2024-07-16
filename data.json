@@ -6,19 +6,19 @@
     },    
     "items":[
         {
-            "bot":true,
+            "type":"bot",
             "position": [{"x":3, "y":3}, {"x":5, "y":2}]
         },
         {
-            "door":true,
+            "type":"door",
             "position": {"x":8, "y":8}
         },
         {
-            "player":true,
-            "position": {"x":4, "y":9}
+            "type":"player",
+            "position": {"x":4, "y":8}
         },
         {
-            "limit":true,
+            "type":"limit",
             "position": [{"x":0, "y":9}, {"x":0, "y":8},{"x":0, "y":7},{"x":0, "y":6},{"x":0, "y":5},{"x":0, "y":4},{"x":0, "y":3},{"x":0, "y":2},{"x":0, "y":1},{"x":0, "y":0}]
         }
     ]

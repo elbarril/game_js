@@ -20,76 +20,97 @@ class Door extends Interactable{
 
 }
 
+class MapObjectCreator{
+    
+    static createCharacter(character){
+        let position = MapObjectCreator.createPosition(character.position);
+        return new Character(position);
+    }
+
+    static createObstacle(obstacle){
+        let position = MapObjectCreator.createPosition(obstacle.position);
+        return new Obstacle(position);
+    }
+
+    static createDoor(door){
+        let position = MapObjectCreator.createPosition(door.position);
+        return new Door(position);
+    }
+    
+    static createMapItem(item){
+
+        if(item.type === "limit"){
+            return MapObjectCreator.createObstacle(item);
+
+        }else if(item.type === "door"){
+            return MapObjectCreator.createDoor(item)
+        }
+    }
+    
+    static createPosition(position){
+        let x = position.x;
+        let y = position.y;
+        return new Position(x,y)
+    }
+}
+
 class Game{
 
     map;
     player;
     mapObserver = [];
     status;
-    interact;
     bots;
 
-    
-    constructor(playerName){
+    constructor(){
         
         this.status = 'init';
-        this.player = new Player(playerName);
         this.bots = [];
     }
     
-    createPlayer(player){
-        let position = this.createPosition(player.position)
-        let playerCharacter = new Character(position);
-
-        if (player.type === "player"){
-            this.player.character = playerCharacter;
-
-        }else if(player.type === "bot"){
-            let bot = new PlayerBot('name');
-            bot.character = playerCharacter;
-            this.bots.push(bot);
-        }
-        return playerCharacter;
-
-    }
-
-    createMapItem(item){
-        let mapItem= null;
-        let position = this.createPosition(item.position);
-
-        if(item.type === "limit"){
-            mapItem = new Obstacle(position);
-
-        }else if(item.type === "door"){
-            mapItem = new Door(position);
-            this.interact = mapItem;
-        }
-        
-        return mapItem;
-    
+    setMap(width, height){
+        this.map = new GameMap(width, height);
     }
     
-    createPosition(position){
-        let x = position.x;
-        let y = position.y;
-        return new Position(x,y)
+    setPlayer(playerName){
+        this.player = new Player(playerName);
     }
 
-    loadMap(x,y, items, players){
-        this.map = new GameMap(x,y);
-        
-        for (let index in items) {
-            const item = items[index];
-            for (let positonIndex in item.positions){
-                const position = item.positions[positonIndex]
-                const mapItem = this.createMapItem({"type":item.type, "position": position});
-                this.map.add(mapItem);
+    setPlayerCharacter(character){
+        this.player.character = MapObjectCreator.createCharacter(character);
+        this.map.add(this.player.character);
+    }
+
+    setBot(name, character){
+        let botCharacter = MapObjectCreator.createCharacter(character);
+        let bot = new PlayerBot(name, botCharacter);
+        this.map.add(bot.character);
+        this.bots.push(bot);
+    }
+
+    setPlayers(players){
+        for (let playerIndex in players){
+            const player = players[playerIndex];
+            if (player.type === "player"){
+                this.setPlayerCharacter(player);
+                
+            }else if(player.type === "bot"){
+                this.setBot("Bot" + (this.bots.length + 1),player);
             }
         }
+    }
 
-        for (let index = 0; index < players.length; index++) {
-            const player = this.createPlayer(players[index]);
-            this.map.add(player)
+    setMapItems(items){
+        if (!this.map) return;
+        for (let index in items) {
+            const item = items[index];
+
+            for (let positonIndex in item.positions){
+                const position = item.positions[positonIndex];
+                let singleType = {"type":item.type, "position": position}
+                const mapItem = MapObjectCreator.createMapItem(singleType);
+                this.map.add(mapItem);
+            }
         }
     }
     
@@ -118,13 +139,14 @@ class Game{
                 object.say('Hi');
             }
 
-            if (object === game.interact){
-                if (game.interact.doAction()){
+            if (object.action){
+                if (object.doAction()){
                     game.changeScene()
                 }
             }
         }
 
+        if (!this.player) return;
         document.addEventListener('keydown', event => {
             if (MOVEMENTS.hasOwnProperty(event.key)) playerMoveCharacter(this, event.key);
             else if (event.key === 'e') interact(this);
